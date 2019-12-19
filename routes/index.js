@@ -1,48 +1,21 @@
 // 主路由 模块
 const router = require("koa-router")();
-const mysql = require("mysql");
 const admin = require("./admin");
-var db = mysql.createPool({
-  host: "122.152.222.17 ",
-  user: "root",
-  password: "Huawei@123",
-  database: "dongzhouguoshu"
-});
+const query = require("../mysql").query;
 router.use("/admin", admin.routes(), admin.allowedMethods());
 
 router.get("/", async (ctx, next) => {
-  let query = () => {
-    return new Promise((resolve, reject) => {
-      db.query(
-        `SELECT * FROM goods_table WHERE goodstatus=1 ORDER BY ordernum DESC`,
-        (err, data) => {
-          // console.log(JSON.stringify(data));
-          if (err) {
-            resolve({
-              message: err.message
-            });
-          } else {
-            resolve(data);
-          }
-        }
-      );
-    });
-  };
-  let result = await query();
-  ctx.body = result;
+  let resault = await query(
+    "SELECT * FROM goods_table WHERE goodstatus=1 ORDER BY ordernum DESC limit 1,10"
+  );
+
+  ctx.body = resault;
 });
 
 router.get("/bar", async (ctx, next) => {
-  let query = () => {
-    return new Promise((resolve, reject) => {
-      db.goods_table
-        .find()
-        .skip(24)
-        .limit(8);
-    });
+  ctx.body = {
+    json: 1
   };
-  let result = await query();
-  ctx.body = result;
 });
 
 module.exports = router;
